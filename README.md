@@ -1,7 +1,7 @@
-# k8s_java_project_demo
+# JFinal-summary
 
 #### 项目介绍
-k8s下java端项目结构
+JFinal学习总结
 
 #### 文件与文件夹说明
 
