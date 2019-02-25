@@ -1,2 +1,1 @@
-# JFinal
-JFinal框架
+# JFinal框架学习总结
