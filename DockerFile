@@ -1,0 +1,5 @@
+FROM ykb_centos_jdk_18065
+COPY ./ /data/server/#
+RUN chmod -R 775 /data/server/
+EXPOSE 80
+CMD  ["nohup","/data/server/#/server.sh","start","80",">/dev/null","2>&1","&"]

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 日志级别 ALL < TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
+
+<!-- status=debug 可以查看log4j的装配过程 -->  
+<configuration status="off" monitorInterval="1800">
+
+    <properties>
+    	<!-- 日志目录 -->
+        <property name="LOG_HOME">/data/logs/ykb_service_logs/</property>
+        <!-- 服务器名称 -->
+        <property name="SERVER_NAME">ykb_service_logs</property>
+        <!-- 日志格式 -->
+        <property name="LOG_FORMAT">%date{yyyy-MM-dd HH:mm:ss} %level - %msg%n</property>
+        <!-- 日志格式 -->
+        <!-- %date{yyyy-MM-dd HH:mm:ss} %level [%thread] - %msg%n -->
+        <!-- %date{yyyy-MM-dd HH:mm:ss} %level - %msg%n -->
+    </properties>  
+    
+    <appenders>
+    
+        <!-- 定义控制台输出格式 -->  
+        <Console name="console" target="SYSTEM_OUT" follow="true">  
+            <PatternLayout pattern="${LOG_FORMAT}" />  
+        </Console>
+        
+        <!-- 日志文件规则  -->  
+        <RollingRandomAccessFile name="trace" fileName="${LOG_HOME}/trace-tmp" filePattern="${LOG_HOME}/trace-${SERVER_NAME}.%d{yyyy-MM-dd-HH}.log">  
+			<!-- 过滤 -->
+			<Filters>
+				<ThresholdFilter level="debug" onMatch="DENY"   onMismatch="NEUTRAL" />
+                <ThresholdFilter level="trace" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
+            <!-- 格式 -->
+            <PatternLayout pattern="${LOG_FORMAT}" />  
+            <!-- 分文件测试 -->
+            <Policies>  
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>  
+        </RollingRandomAccessFile>
+        
+        <RollingRandomAccessFile name="debug" fileName="${LOG_HOME}/debug-tmp" filePattern="${LOG_HOME}/debug-${SERVER_NAME}.%d{yyyy-MM-dd-HH}.log">  
+			<!-- 过滤 -->
+			<Filters>
+				<ThresholdFilter level="info"  onMatch="DENY"   onMismatch="NEUTRAL" />
+				<ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
+            <!-- 格式 -->
+            <PatternLayout pattern="${LOG_FORMAT}" />  
+            <!-- 分文件测试 -->
+            <Policies>  
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>  
+        </RollingRandomAccessFile>
+        
+        <RollingRandomAccessFile name="info" fileName="${LOG_HOME}/info-tmp" filePattern="${LOG_HOME}/info-${SERVER_NAME}.%d{yyyy-MM-dd-HH}.log">  
+			<!-- 过滤 -->
+			<Filters>
+				<ThresholdFilter  level="warn"   onMatch="DENY"   onMismatch="NEUTRAL" />
+				<ThresholdFilter  level="info"   onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
+            <!-- 格式 -->
+            <PatternLayout pattern="${LOG_FORMAT}" />  
+            <!-- 分文件测试 -->
+            <Policies>  
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>  
+        </RollingRandomAccessFile>
+        
+       <RollingRandomAccessFile name="warn" fileName="${LOG_HOME}/warn-tmp" filePattern="${LOG_HOME}/warn-${SERVER_NAME}.%d{yyyy-MM-dd-HH}.log">  
+			<!-- 过滤 -->
+			<Filters>
+				<ThresholdFilter level="error" onMatch="DENY"   onMismatch="NEUTRAL" />
+				<ThresholdFilter level="warn"  onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
+            <!-- 格式 -->
+            <PatternLayout pattern="${LOG_FORMAT}" />  
+            <!-- 分文件测试 -->
+            <Policies>  
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>  
+        </RollingRandomAccessFile>
+        
+        <RollingRandomAccessFile name="error" fileName="${LOG_HOME}/error-tmp" filePattern="${LOG_HOME}/error-${SERVER_NAME}.%d{yyyy-MM-dd-HH}.log">  
+			<!-- 过滤 -->
+			<Filters>
+				<ThresholdFilter level="fatal" onMatch="DENY"   onMismatch="NEUTRAL"/>
+				<ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
+            <!-- 格式 -->
+            <PatternLayout pattern="${LOG_FORMAT}" />  
+            <!-- 分文件测试 -->
+            <Policies>  
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>  
+        </RollingRandomAccessFile>
+        
+        <RollingRandomAccessFile name="fatal" fileName="${LOG_HOME}/fatal-tmp" filePattern="${LOG_HOME}/fatal-${SERVER_NAME}.%d{yyyy-MM-dd-HH}.log">  
+			<!-- 过滤 -->
+			<Filters>
+                <ThresholdFilter level="fatal" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <!-- 格式 -->
+            <PatternLayout pattern="${LOG_FORMAT}" />  
+            <!-- 分文件测试 -->
+            <Policies>  
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>  
+        </RollingRandomAccessFile>
+
+        <!--写入数据库配置-->
+        <JDBC name="databaseAppender" tableName="logger_info" >
+            <ConnectionFactory class="org.fw.little.base.util.LogConnectionFactory" method="getDatabaseConnection" />
+            <Column name="CLASS" pattern="%class:%L" />
+            <Column name="METHOD" pattern="%M" />
+            <Column name="LOGLEVEL" pattern="%p" />
+            <Column name="MSG" pattern="%m"/>
+            <Column name="CREATETIME" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}"/>
+        </JDBC>
+        
+    </appenders>
+ 
+ 	<!-- 异步写日志文件 -->
+    <loggers>
+        <!-- includeLocation="true"提取类名和方法名但会影响性能 -->
+        <asyncRoot level="ALL" includeLocation="true">
+            <appender-ref ref="databaseAppender" level="INFO" />
+       		<appender-ref ref="console"/>
+        	<appender-ref ref="trace"/>
+        	<appender-ref ref="debug"/>
+        	<appender-ref ref="info"/>
+        	<appender-ref ref="warn"/>
+        	<appender-ref ref="error"/>
+        	<appender-ref ref="fatal"/>
+        </asyncRoot>
+    </loggers>
+ 
+</configuration>
